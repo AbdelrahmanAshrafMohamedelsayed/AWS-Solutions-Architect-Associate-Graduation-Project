@@ -1,4 +1,4 @@
-PYTHON ?= /Users/abashraf/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3
+PYTHON ?= python3
 
 .PHONY: test package terraform-fmt terraform-validate
 
@@ -14,4 +14,3 @@ terraform-fmt:
 terraform-validate:
 	terraform init -backend=false
 	terraform validate
-

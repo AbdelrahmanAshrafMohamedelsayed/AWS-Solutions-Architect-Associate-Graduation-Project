@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from io import BytesIO
 from pathlib import PurePosixPath
 from typing import Any
+from urllib.parse import unquote_plus
 
 from PIL import Image, ImageDraw, ImageOps, UnidentifiedImageError
 
@@ -108,7 +109,7 @@ def parse_s3_records_from_sqs_event(event: dict[str, Any]) -> list[dict[str, str
         body = json.loads(sqs_record["body"])
         for s3_record in body.get("Records", []):
             bucket = s3_record["s3"]["bucket"]["name"]
-            key = s3_record["s3"]["object"]["key"].replace("+", " ")
+            key = unquote_plus(s3_record["s3"]["object"]["key"])
             parsed_records.append(
                 {
                     "imageId": extract_image_id_from_source_key(key),
@@ -182,4 +183,3 @@ def _to_jpeg_bytes(image: Image.Image) -> bytes:
     buffer = BytesIO()
     rgb.save(buffer, format="JPEG", quality=88, optimize=True)
     return buffer.getvalue()
-

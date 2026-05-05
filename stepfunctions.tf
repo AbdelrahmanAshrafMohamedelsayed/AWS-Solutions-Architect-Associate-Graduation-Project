@@ -16,8 +16,36 @@ resource "aws_sfn_state_machine" "image_processing" {
 
   definition = jsonencode({
     Comment = "Validate, process, store metadata, and notify for uploaded images."
-    StartAt = "MarkProcessing"
+    StartAt = "ValidateEvent"
     States = {
+      ValidateEvent = {
+        Type = "Choice"
+        Choices = [
+          {
+            And = [
+              {
+                Variable  = "$.imageId"
+                IsPresent = true
+              },
+              {
+                Variable  = "$.sourceBucket"
+                IsPresent = true
+              },
+              {
+                Variable  = "$.sourceKey"
+                IsPresent = true
+              }
+            ]
+            Next = "MarkProcessing"
+          }
+        ]
+        Default = "InvalidInput"
+      }
+      InvalidInput = {
+        Type  = "Fail"
+        Error = "InvalidInput"
+        Cause = "State machine input must include imageId, sourceBucket, and sourceKey."
+      }
       MarkProcessing = {
         Type     = "Task"
         Resource = "arn:aws:states:::dynamodb:updateItem"
@@ -132,4 +160,3 @@ resource "aws_sfn_state_machine" "image_processing" {
     aws_cloudwatch_log_group.step_functions
   ]
 }
-

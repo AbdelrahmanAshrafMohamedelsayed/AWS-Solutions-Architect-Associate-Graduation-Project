@@ -88,16 +88,16 @@ curl --request PUT \
 
 ```text
 .
-├── *.tf                         # Terraform infrastructure
-├── lambda_src/
-│   ├── common/                  # Shared status, validation, key, and image helpers
-│   ├── upload_url/              # API Gateway Lambda handler
-│   ├── workflow_starter/        # SQS to Step Functions Lambda handler
-│   └── processor/               # Pillow-based resize and watermark Lambda handler
-├── tests/                       # Local unit tests for core Lambda behavior
-├── scripts/package_lambdas.sh   # Reproducible Lambda zip build
-├── diagrams/architecture.mmd    # Mermaid architecture diagram source
-└── terraform.tfvars.example     # Example deployment variables
++-- *.tf                         # Terraform infrastructure
++-- lambda_src/
+|   +-- common/                  # Shared status, validation, key, and image helpers
+|   +-- upload_url/              # API Gateway Lambda handler
+|   +-- workflow_starter/        # SQS to Step Functions Lambda handler
+|   +-- processor/               # Pillow-based resize and watermark Lambda handler
++-- tests/                       # Local unit tests for core Lambda behavior
++-- scripts/package_lambdas.sh   # Reproducible Lambda zip build
++-- diagrams/architecture.mmd    # Mermaid architecture diagram source
++-- terraform.tfvars.example     # Example deployment variables
 ```
 
 ## Deployment Steps
@@ -245,6 +245,12 @@ terraform destroy
 
 ## Local Tests
 
+Install local Python dependencies if your environment does not already have Pillow:
+
+```bash
+python3 -m pip install -r lambda_src/requirements.txt
+```
+
 Run:
 
 ```bash
@@ -287,4 +293,3 @@ The tests cover:
 - **Workflow orchestration:** Step Functions controls processing, metadata updates, and notifications.
 - **Lifecycle policies:** S3 lifecycle rules expire original uploads and transition processed images.
 - **Global content delivery:** CloudFront serves processed images through an HTTPS edge distribution.
-
