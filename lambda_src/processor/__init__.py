@@ -1,0 +1,2 @@
+"""Image processor Lambda package."""
+
