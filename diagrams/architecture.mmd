@@ -1,0 +1,19 @@
+flowchart LR
+    User["User or frontend"] -->|"POST /uploads"| Api["API Gateway HTTP API"]
+    Api --> UploadLambda["Lambda: pre-signed upload URL"]
+    UploadLambda -->|"PutItem: PENDING"| Metadata["DynamoDB image metadata"]
+    UploadLambda -->|"Create pre-signed PUT URL"| SourceBucket["S3 source bucket"]
+    User -->|"PUT original image"| SourceBucket
+    SourceBucket -->|"ObjectCreated event"| Queue["SQS image event queue"]
+    Queue --> StarterLambda["Lambda: workflow starter"]
+    StarterLambda --> Workflow["Step Functions workflow"]
+    Workflow -->|"Update: PROCESSING"| Metadata
+    Workflow --> ProcessorLambda["Lambda: resize and watermark"]
+    ProcessorLambda -->|"Get original"| SourceBucket
+    ProcessorLambda -->|"Put thumbnail and display image"| ProcessedBucket["S3 processed bucket"]
+    Workflow -->|"Update: PROCESSED or FAILED"| Metadata
+    Workflow --> Notifications["SNS notifications"]
+    ProcessedBucket -->|"Private origin access"| CloudFront["CloudFront distribution"]
+    CloudFront -->|"HTTPS processed images"| User
+    Queue -->|"After retries"| DLQ["SQS dead-letter queue"]
+

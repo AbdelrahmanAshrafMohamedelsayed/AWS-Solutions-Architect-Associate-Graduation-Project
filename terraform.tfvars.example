@@ -1,0 +1,8 @@
+project_name       = "saa-image-pipeline"
+aws_region         = "us-east-1"
+environment        = "dev"
+notification_email = "your-email@example.com"
+watermark_text     = "SAA Demo"
+thumbnail_max_px   = 320
+display_max_px     = 1280
+
